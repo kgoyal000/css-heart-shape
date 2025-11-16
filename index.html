@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Shape Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .heart {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            clip-path: shape(from 50% 100%, line to 86% 52%, arc to 50% 28% of 8%, arc to 14% 52% of 8%, close);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+            transition: clip-path 0.3s ease;
+        }
+
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .control-group h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .control-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-item label {
+            min-width: 100px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .control-item input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .control-item input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .control-item input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s;
+        }
+
+        .control-item input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .control-item .value {
+            min-width: 50px;
+            text-align: right;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .code-output {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-output code {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .copy-btn.copied {
+            background: #51cf66;
+        }
+
+        .reset-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background: #ee5a6f;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .property-label {
+            color: #a6e22e;
+        }
+
+        .property-value {
+            color: #e6db74;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>❤️ Heart Shape Editor</h1>
+        
+        <div class="main-content">
+            <div class="preview-section">
+                <div class="heart" id="heart"></div>
+            </div>
+
+            <div class="controls-section">
+                <div class="control-group">
+                    <h3>Starting Point</h3>
+                    <div class="control-item">
+                        <label>X Position:</label>
+                        <input type="range" id="startX" min="0" max="100" value="50" step="1">
+                        <span class="value" id="startX-value">50%</span>
+                    </div>
+                    <div class="control-item">
+                        <label>Y Position:</label>
+                        <input type="range" id="startY" min="0" max="100" value="100" step="1">
+                        <span class="value" id="startY-value">100%</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Line To Point</h3>
+                    <div class="control-item">
+                        <label>X Position:</label>
+                        <input type="range" id="lineX" min="0" max="100" value="86" step="1">
+                        <span class="value" id="lineX-value">86%</span>
+                    </div>
+                    <div class="control-item">
+                        <label>Y Position:</label>
+                        <input type="range" id="lineY" min="0" max="100" value="52" step="1">
+                        <span class="value" id="lineY-value">52%</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>First Arc (Right)</h3>
+                    <div class="control-item">
+                        <label>End X:</label>
+                        <input type="range" id="arc1X" min="0" max="100" value="50" step="1">
+                        <span class="value" id="arc1X-value">50%</span>
+                    </div>
+                    <div class="control-item">
+                        <label>End Y:</label>
+                        <input type="range" id="arc1Y" min="0" max="100" value="28" step="1">
+                        <span class="value" id="arc1Y-value">28%</span>
+                    </div>
+                    <div class="control-item">
+                        <label>Radius:</label>
+                        <input type="range" id="arc1Radius" min="1" max="50" value="8" step="1">
+                        <span class="value" id="arc1Radius-value">8%</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Second Arc (Left)</h3>
+                    <div class="control-item">
+                        <label>End X:</label>
+                        <input type="range" id="arc2X" min="0" max="100" value="14" step="1">
+                        <span class="value" id="arc2X-value">14%</span>
+                    </div>
+                    <div class="control-item">
+                        <label>End Y:</label>
+                        <input type="range" id="arc2Y" min="0" max="100" value="52" step="1">
+                        <span class="value" id="arc2Y-value">52%</span>
+                    </div>
+                    <div class="control-item">
+                        <label>Radius:</label>
+                        <input type="range" id="arc2Radius" min="1" max="50" value="8" step="1">
+                        <span class="value" id="arc2Radius-value">8%</span>
+                    </div>
+                </div>
+
+                <button class="reset-btn" onclick="resetValues()">Reset to Default</button>
+            </div>
+        </div>
+
+        <div class="code-output">
+            <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+            <code id="codeOutput"></code>
+        </div>
+    </div>
+
+    <script>
+        // Default values
+        const defaults = {
+            startX: 50, startY: 100,
+            lineX: 86, lineY: 52,
+            arc1X: 50, arc1Y: 28, arc1Radius: 8,
+            arc2X: 14, arc2Y: 52, arc2Radius: 8
+        };
+
+        // Get all input elements
+        const inputs = document.querySelectorAll('input[type="range"]');
+        const heart = document.getElementById('heart');
+        const codeOutput = document.getElementById('codeOutput');
+
+        // Update shape function
+        function updateShape() {
+            const startX = document.getElementById('startX').value;
+            const startY = document.getElementById('startY').value;
+            const lineX = document.getElementById('lineX').value;
+            const lineY = document.getElementById('lineY').value;
+            const arc1X = document.getElementById('arc1X').value;
+            const arc1Y = document.getElementById('arc1Y').value;
+            const arc1Radius = document.getElementById('arc1Radius').value;
+            const arc2X = document.getElementById('arc2X').value;
+            const arc2Y = document.getElementById('arc2Y').value;
+            const arc2Radius = document.getElementById('arc2Radius').value;
+
+            // Build the clip-path value
+            const clipPath = `shape(from ${startX}% ${startY}%, line to ${lineX}% ${lineY}%, arc to ${arc1X}% ${arc1Y}% of ${arc1Radius}%, arc to ${arc2X}% ${arc2Y}% of ${arc2Radius}%, close)`;
+            
+            // Apply to heart
+            heart.style.clipPath = clipPath;
+
+            // Update code output with syntax highlighting
+            const codeText = `clip-path: ${clipPath};`;
+            codeOutput.innerHTML = `<span class="property-label">clip-path:</span> <span class="property-value">${clipPath}</span>;`;
+        }
+
+        // Add event listeners to all inputs
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                // Update display value
+                const valueDisplay = document.getElementById(`${this.id}-value`);
+                valueDisplay.textContent = `${this.value}%`;
+                
+                // Update shape
+                updateShape();
+            });
+        });
+
+        // Reset function
+        function resetValues() {
+            Object.keys(defaults).forEach(key => {
+                const input = document.getElementById(key);
+                const valueDisplay = document.getElementById(`${key}-value`);
+                input.value = defaults[key];
+                valueDisplay.textContent = `${defaults[key]}%`;
+            });
+            updateShape();
+        }
+
+        // Copy code function
+        function copyCode() {
+            const btn = document.querySelector('.copy-btn');
+            const text = heart.style.clipPath;
+            const fullText = `clip-path: ${text};`;
+            
+            navigator.clipboard.writeText(fullText).then(() => {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy Code';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Initialize
+        updateShape();
+    </script>
+</body>
+</html>
